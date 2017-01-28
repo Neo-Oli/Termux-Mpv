@@ -49,7 +49,7 @@ class termuxmpv:
     def isRunning(self):
         return self.mpvproc.poll() is None
     def cleanup(self):
-        self.fifo.close()
+        os.close(self.fifo)
         os.remove(self.fifoname)
         if self.notificationId:
             command=["termux-notification-remove",self.notificationId]
