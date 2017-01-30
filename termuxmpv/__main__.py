@@ -131,14 +131,26 @@ class termuxmpv:
                     self.updateNotification()
 
     def updateNotification(self):
-        playbutton="█ █"
+        padding="           "
+        playbutton="{}█ █{}".format(padding,padding)
+        prevbutton="{}◀◀{}".format(padding,padding)
+        nextbutton="{}▶▶{}".format(padding,padding)
         if self.pause:
-            playbutton="▶"
+            playbutton="{} ▶ {}".format(padding,padding)
+        artist="None"
+        if "artist" in self.metadata:
+            artist=self.metadata["artist"]
+        album="None"
+        if "album" in self.metadata:
+            album=self.metadata["album"]
+        title="None"
+        if "title" in self.metadata:
+            title=self.metadata["title"]
         command=[
             "termux-notification",
             "--id", self.notificationId,
-            "--title", self.metadata["title"],
-            "--content", "{}, {}".format(self.metadata["artist"], self.metadata["album"]),
+            "--title", title,
+            "--content", "{}, {}".format(artist, album),
             # "--led-color 00ffff",
             # "--vibrate 300,150,300",
             "--priority", "max",
@@ -146,11 +158,11 @@ class termuxmpv:
                 "am start --user 0 -n com.termux/com.termux.app.TermuxActivity",
                 "echo 'updateNotification'> {}".format(self.fifoname)
                 ]),
-            "--button1", "◀◀",
+            "--button1", prevbutton,
             "--button1-action","echo 'prev'> {}".format(self.fifoname),
             "--button2", playbutton,
             "--button2-action","echo 'pause'> {}".format(self.fifoname),
-            "--button3", "▶▶",
+            "--button3", nextbutton,
             "--button3-action","echo 'next'> {}".format(self.fifoname),
         ]
         output=subprocess.call(command)
