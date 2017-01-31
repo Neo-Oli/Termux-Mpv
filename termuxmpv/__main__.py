@@ -132,9 +132,12 @@ class termuxmpv:
 
     def updateNotification(self):
         padding="           "
-        playbutton="{}█ █{}".format(padding,padding)
-        prevbutton="{}◀◀{}".format(padding,padding)
-        nextbutton="{}▶▶{}".format(padding,padding)
+        # playbutton="{}⏸{}".format(padding,padding)
+        # prevbutton="{}⏮{}".format(padding,padding)
+        # nextbutton="{}⏭{}".format(padding,padding)
+        playbutton="{}❙❙{}".format(padding,padding)
+        prevbutton="{}|◀◀{}".format(padding,padding)
+        nextbutton="{}▶▶|{}".format(padding,padding)
         if self.pause:
             playbutton="{} ▶ {}".format(padding,padding)
         artist="None"
