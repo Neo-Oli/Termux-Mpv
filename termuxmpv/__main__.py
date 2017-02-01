@@ -8,6 +8,7 @@ import time
 import tempfile
 import json
 import select
+import argparse
 class termuxmpv:
     def signal_handler(self,signal, frame):
         pass
@@ -18,7 +19,9 @@ class termuxmpv:
         self.q=[]
         self.metadata={}
         self.initFifo()
-        self.createSocket()
+        if not self.checkForSocket():
+            self.createSocket()
+        print(self.sockpath)
         self.startProcess()
         self.getSocket()
         self.first=True
@@ -28,7 +31,19 @@ class termuxmpv:
         self.monitor()
     def __del__(self):
         self.cleanup()
+    def checkForSocket(self):
+        prev=""
+        for arg in reversed(self.args):
+            if arg=="--input-ipc-server":
+                self.sockpath=prev
+                return True
+            elif arg.startswith("--input-ipc-server="):
+                self.sockpath=arg.split("=")[1]
+                return True
 
+            prev=arg
+        return False 
+        
     def initFifo(self):
         self.notificationId="termuxMpv.{}".format(time.time())
         self.fifoname="/data/data/com.termux/files/usr/tmp/{}".format(self.notificationId)
