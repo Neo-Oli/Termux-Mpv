@@ -50,10 +50,13 @@ class termuxmpv:
                 continue
             else:
                 break
-        else:
-            sys.exit(1)
     def isRunning(self):
-        return self.mpvproc.poll() is None
+        
+        if self.mpvproc.poll() is None:
+            return True
+        else:
+            sys.exit(self.mpvproc.returncode)
+        
     def cleanup(self):
         os.close(self.fifo)
         os.remove(self.fifoname)
