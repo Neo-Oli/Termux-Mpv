@@ -21,7 +21,6 @@ class termuxmpv:
         self.initFifo()
         if not self.checkForSocket():
             self.createSocket()
-        print(self.sockpath)
         self.startProcess()
         self.getSocket()
         self.first=True
