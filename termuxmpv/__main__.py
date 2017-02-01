@@ -149,7 +149,9 @@ class termuxmpv:
             del self.q[0]
 
     def updateNotification(self):
-        padding="           "
+        # padding="           "
+        #disable padding for now
+        padding=""
         # playbutton="{}⏸{}".format(padding,padding)
         # prevbutton="{}⏮{}".format(padding,padding)
         # nextbutton="{}⏭{}".format(padding,padding)
