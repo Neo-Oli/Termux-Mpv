@@ -15,10 +15,16 @@ class termuxmpv:
         signal.signal(signal.SIGINT, self.signal_handler)
         self.args=args
         self.pause=False
+        self.q=[]
+        self.metadata={}
         self.initFifo()
         self.createSocket()
         self.startProcess()
         self.getSocket()
+        self.first=True
+        self.processMessage()
+        self.first=False
+        self.updateNotification()
         self.monitor()
     def __del__(self):
         self.cleanup()
@@ -91,14 +97,15 @@ class termuxmpv:
     def sendCommand(self,command):
         command=command.strip()
         if command=="prev":
-            self.sendMessage(["keypress","<"])
+            self.sendMessage(["keypress","<"],"keypress")
         if command=="next":
-            self.sendMessage(["keypress",">"])
+            self.sendMessage(["keypress",">"],"keypress")
         if command=="pause":
-            self.sendMessage(["keypress","p"])
+            self.sendMessage(["keypress","p"],"keypress")
         if command=="updateNotification":
             self.updateNotification()
-    def sendMessage(self,message):
+    def sendMessage(self,message,msgprocessor):
+        self.q.append(msgprocessor)
         data={}
         data["command"]=message
         data=json.dumps(data)
@@ -110,14 +117,16 @@ class termuxmpv:
                 print("Socket error", file=sys.stderr)
             data = data[size:]
 
-    def processMessage(self, message):
+    def processMessage(self, message='{"event":""}'):
         try:
             message=json.loads(message)
         except:
             pass
         if "event" in message:
-            if message["event"]=="metadata-update":
-                self.sendMessage(["get_property","metadata"])
+            if message["event"]=="metadata-update" or self.first:
+                self.sendMessage(["get_property","metadata"],"metadata")
+            if message["event"]=="file-loaded" or self.first:
+                self.sendMessage(["get_property","filename"],"filename")
             if message["event"]=="pause":
                 self.pause=True
                 self.updateNotification()
@@ -125,10 +134,16 @@ class termuxmpv:
                 self.pause=False
                 self.updateNotification()
         elif "data" in message:
-            if message["data"]:
-                if "title" in message["data"]:
+            if self.q[0]:
+                if self.q[0]=="metadata":
                     self.metadata=message["data"]
                     self.updateNotification()
+                if self.q[0]=="filename":
+                    self.filename=message["data"]
+                    self.updateNotification()
+                del self.q[0]
+        elif "error" in message:
+            del self.q[0]
 
     def updateNotification(self):
         padding="           "
@@ -140,20 +155,26 @@ class termuxmpv:
         nextbutton="{}▶▶|{}".format(padding,padding)
         if self.pause:
             playbutton="{} ▶ {}".format(padding,padding)
-        artist="None"
-        if "artist" in self.metadata:
-            artist=self.metadata["artist"]
-        album="None"
-        if "album" in self.metadata:
-            album=self.metadata["album"]
-        title="None"
-        if "title" in self.metadata:
-            title=self.metadata["title"]
+        metadata={}
+        for attr in ["album","artist","title"]:
+            try:
+                metadata[attr]=self.metadata[attr]
+            except KeyError:
+                metadata[attr]="None"
+        try:
+            filename=self.filename
+        except AttributeError:
+            filename="None"
+
+        if metadata["title"]=="None":
+            title=filename
+        else:
+            title=metadata["title"]
         command=[
             "termux-notification",
             "--id", self.notificationId,
             "--title", title,
-            "--content", "{}, {}".format(artist, album),
+            "--content", "{}, {}".format(metadata["artist"], metadata["album"]),
             # "--led-color 00ffff",
             # "--vibrate 300,150,300",
             "--priority", "max",
