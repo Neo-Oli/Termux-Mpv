@@ -1,6 +1,6 @@
 #Termux-Mpv
 
-This is a wrapper for mpv on [Termux](termux.net). It displays a notification with media controls
+This is a wrapper for mpv on [Termux](http://termux.com). It displays a notification with media controls
 
 ![Screenshot](/Screenshots/Notification-Media-Controls-small.png)
 
