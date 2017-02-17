@@ -95,7 +95,7 @@ class termuxmpv:
                 if not b:
                     break
                 buf += b
-            buf=buf.decode("utf-8")
+            buf=buf.decode("utf-8",'replace')
             newline = buf.find("\n")
             while newline >= 0:
                 message = buf[:newline + 1]
@@ -179,7 +179,10 @@ class termuxmpv:
             try:
                 metadata[attr]=self.metadata[attr]
             except KeyError:
-                metadata[attr]="None"
+                try:
+                    metadata[attr]=self.metadata[attr.upper()]
+                except KeyError:
+                    metadata[attr]="None"
         try:
             filename=self.filename
         except AttributeError:
