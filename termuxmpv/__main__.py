@@ -122,6 +122,8 @@ class termuxmpv:
             self.sendMessage(["keypress",">"],"keypress")
         if command=="pause":
             self.sendMessage(["keypress","p"],"keypress")
+        if command=="exit":
+            self.sendMessage(["keypress","q"],"keypress")
         if command=="updateNotification":
             self.updateNotification()
     def sendMessage(self,message,msgprocessor):
@@ -217,6 +219,7 @@ class termuxmpv:
             "--button2-action","echo 'pause'> {}".format(self.fifoname),
             "--button3", nextbutton,
             "--button3-action","echo 'next'> {}".format(self.fifoname),
+            "--on-delete", "echo 'exit'>{}".format(self.fifoname),
         ]
         output=subprocess.call(command)
 def main(args=None):
