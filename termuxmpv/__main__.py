@@ -72,7 +72,10 @@ class termuxmpv:
             sys.exit(self.mpvproc.returncode)
         
     def cleanup(self):
-        os.close(self.fifo)
+        try:
+            os.close(self.fifo)
+        except OSError:
+            pass
         os.remove(self.fifoname)
         if self.notificationId:
             command=["termux-notification-remove",self.notificationId]
@@ -129,7 +132,11 @@ class termuxmpv:
         data="{}\n".format(data)
         data=data.encode("utf-8")
         while data:
-            size = self.sock.send(data)
+            try:
+                size = self.sock.send(data)
+            except BrokenPipeError:
+                self.cleanup()
+                sys.exit(0)
             if size == 0:
                 print("Socket error", file=sys.stderr)
             data = data[size:]
