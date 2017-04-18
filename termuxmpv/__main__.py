@@ -76,7 +76,10 @@ class termuxmpv:
             os.close(self.fifo)
         except OSError:
             pass
-        os.remove(self.fifoname)
+        try:
+            os.remove(self.fifoname)
+        except FileNotFoundError:
+            pass
         if self.notificationId:
             command=["termux-notification-remove",self.notificationId]
             output=subprocess.call(command)
