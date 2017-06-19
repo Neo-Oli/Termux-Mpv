@@ -141,7 +141,7 @@ class termuxmpv:
                 size = self.sock.send(data)
             except BrokenPipeError:
                 self.cleanup()
-                sys.exit(0)
+                sys.exit(170)
             if size == 0:
                 print("Socket error", file=sys.stderr)
             data = data[size:]
