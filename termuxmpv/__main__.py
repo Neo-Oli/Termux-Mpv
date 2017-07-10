@@ -41,8 +41,7 @@ class termuxmpv:
                 return True
 
             prev=arg
-        return False 
-        
+        return False
     def initFifo(self):
         self.notificationId="termuxMpv.{}".format(time.time())
         self.fifoname="/data/data/com.termux/files/usr/tmp/{}".format(self.notificationId)
@@ -65,12 +64,10 @@ class termuxmpv:
             else:
                 break
     def isRunning(self):
-        
         if self.mpvproc.poll() is None:
             return True
         else:
             sys.exit(self.mpvproc.returncode)
-        
     def cleanup(self):
         try:
             os.close(self.fifo)
