@@ -48,7 +48,9 @@ class termuxmpv:
         os.mkfifo(self.fifoname)
         self.fifo = os.open(self.fifoname, os.O_RDONLY | os.O_NONBLOCK)
     def startProcess(self):
-        self.mpvproc=subprocess.Popen(['mpv', '--input-ipc-server', self.sockpath] + self.args ,stdin=sys.stdin) 
+        prefix=os.environ["PREFIX"]
+        program="{}/bin/mpv".format(prefix)
+        self.mpvproc=subprocess.Popen([program, '--input-ipc-server', self.sockpath] + self.args ,stdin=sys.stdin) 
     def createSocket(self):
         fd, self.sockpath = tempfile.mkstemp(prefix="mpv.")
         os.close(fd)
@@ -85,6 +87,7 @@ class termuxmpv:
                 os.remove(self.sockpath)
             except OSError:
                 pass
+        # self.updatehook()
     def monitor(self):
         while self.isRunning():
             # time.sleep(1)
@@ -170,8 +173,15 @@ class termuxmpv:
                 del self.q[0]
         elif "error" in message:
             del self.q[0]
-
+    # def updatehook(self):
+        # command="termuxmpv-update-notification-hook"
+        # devnull=open(os.devnull, 'wb')
+        # try:
+            # subprocess.call(["sh", "-c", command],stdout=devnull,stderr=devnull)
+        # except:
+            # pass
     def updateNotification(self):
+        # self.updatehook()
         # padding="           "
         #disable padding for now
         padding=""
