@@ -8,7 +8,6 @@ import time
 import tempfile
 import json
 import select
-import argparse
 class termuxmpv:
     def signal_handler(self,signal, frame):
         pass
@@ -87,7 +86,7 @@ class termuxmpv:
                 os.remove(self.sockpath)
             except OSError:
                 pass
-        # self.updatehook()
+        self.updatehook()
     def monitor(self):
         while self.isRunning():
             # time.sleep(1)
@@ -173,15 +172,15 @@ class termuxmpv:
                 del self.q[0]
         elif "error" in message:
             del self.q[0]
-    # def updatehook(self):
-        # command="termuxmpv-update-notification-hook"
-        # devnull=open(os.devnull, 'wb')
-        # try:
-            # subprocess.call(["sh", "-c", command],stdout=devnull,stderr=devnull)
-        # except:
-            # pass
+    def updatehook(self):
+        command="hook-update-mpv"
+        devnull=open(os.devnull, 'wb')
+        try:
+            subprocess.call(["sh", "-c", command],stdout=devnull,stderr=devnull)
+        except:
+            pass
     def updateNotification(self):
-        # self.updatehook()
+        self.updatehook()
         # padding="           "
         #disable padding for now
         padding=""
