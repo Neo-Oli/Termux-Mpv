@@ -193,7 +193,7 @@ class termuxmpv:
         if self.pause:
             playbutton="{} ▶ {}".format(padding,padding)
         metadata={}
-        for attr in ["album","artist","title"]:
+        for attr in ["album","artist","title","icy-title"]:
             try:
                 metadata[attr]=self.metadata[attr]
             except KeyError:
@@ -206,10 +206,12 @@ class termuxmpv:
         except AttributeError:
             filename="None"
 
-        if metadata["title"]=="None":
-            title=filename
-        else:
+        if metadata["title"]!="None":
             title=metadata["title"]
+        if metadata["icy-title"]!="None":
+            title=metadata["icy-title"]
+        else:
+            title=filename
         command=[
             "termux-notification",
             "--id", self.notificationId,
