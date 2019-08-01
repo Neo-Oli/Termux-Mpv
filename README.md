@@ -22,6 +22,7 @@ apt install termux-api python mpv
 ```
 pip install git+https://github.com/Neo-Oli/Termux-Mpv
 ```
+*the above snippet requires git to be installed `apt install git`*
 
 ## Usage
 
