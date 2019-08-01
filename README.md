@@ -1,4 +1,4 @@
-#Termux-Mpv
+# Termux-Mpv
 
 This is a wrapper for mpv on [Termux](http://termux.com). It displays a notification with media controls
 
