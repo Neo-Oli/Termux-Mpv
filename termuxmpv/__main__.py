@@ -95,8 +95,7 @@ class Termuxmpv:
             pass
         if self.notificationId:
             command = ["termux-notification-remove", self.notificationId]
-            # TODO variable never used
-            output = subprocess.call(command)
+            subprocess.call(command)
         if self.sockpath:
             try:
                 os.remove(self.sockpath)
@@ -255,8 +254,7 @@ class Termuxmpv:
             "--button3-action", "echo 'next'> {}".format(self.fifoname),
             "--on-delete", "echo 'exit'>{}".format(self.fifoname),
         ]
-        # TODO variable never used
-        output = subprocess.call(command)
+        subprocess.call(command)
 
 
 def main(args=None):
