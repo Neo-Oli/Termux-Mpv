@@ -141,6 +141,14 @@ class Termuxmpv:
             self.sendMessage(["keypress", ">"], "keypress")
         if command == "pause":
             self.sendMessage(["keypress", "p"], "keypress")
+        if command == "seek-back":
+            self.sendMessage(["keypress", "left"], "keypress")
+        if command == "seek-back-far":
+            self.sendMessage(["keypress", "down"], "keypress")
+        if command == "seek-forward":
+            self.sendMessage(["keypress", "right"], "keypress")
+        if command == "seek-forward-far":
+            self.sendMessage(["keypress", "up"], "keypress")
         if command == "exit":
             self.sendMessage(["keypress", "q"], "keypress")
         if command == "updateNotification":
