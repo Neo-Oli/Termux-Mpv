@@ -55,7 +55,7 @@ class Termuxmpv:
         self.fifo = os.open(self.fifoname, os.O_RDONLY | os.O_NONBLOCK)
 
     def startProcess(self):
-        prefix = os.environ["PREFIX"]
+        prefix = '/data/data/com.termux/files/usr'
         program = "{}/bin/mpv".format(prefix)
         self.mpvproc = subprocess.Popen(
             [program, '--input-ipc-server', self.sockpath] + self.args,
