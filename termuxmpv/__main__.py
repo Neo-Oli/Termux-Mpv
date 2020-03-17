@@ -58,7 +58,7 @@ class Termuxmpv:
         prefix = '/data/data/com.termux/files/usr'
         program = "{}/bin/mpv".format(prefix)
         self.mpvproc = subprocess.Popen(
-            [program, '--input-ipc-server', self.sockpath] + self.args,
+            [program, '--input-ipc-server={}'.format(self.sockpath)] + self.args,
             stdin=sys.stdin
         )
 
