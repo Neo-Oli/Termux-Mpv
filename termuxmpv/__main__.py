@@ -210,17 +210,6 @@ class Termuxmpv:
 
     def updateNotification(self):
         self.updatehook()
-        # padding="           "
-        # disable padding for now
-        padding = ""
-        # playbutton="{}⏸{}".format(padding,padding)
-        # prevbutton="{}⏮{}".format(padding,padding)
-        # nextbutton="{}⏭{}".format(padding,padding)
-        playbutton = "{}❙❙{}".format(padding, padding)
-        prevbutton = "{}|◀◀{}".format(padding, padding)
-        nextbutton = "{}▶▶|{}".format(padding, padding)
-        if self.pause:
-            playbutton = "{} ▶ {}".format(padding, padding)
         metadata = {}
         for attr in ["album", "artist", "title", "icy-title"]:
             try:
@@ -245,21 +234,18 @@ class Termuxmpv:
             "termux-notification",
             "--id", self.notificationId,
             "--title", title,
+            "--type", "media",
             "--content", "{}, {}".format(metadata["artist"],
                                          metadata["album"]),
-            # "--led-color 00ffff",
-            # "--vibrate 300,150,300",
             "--priority", "max",
             "--action", ";".join([
                 "am start --user 0 -n com.termux/com.termux.app.TermuxActivity", # noqa line break is unreasonable
                 "echo 'updateNotification'> {}".format(self.fifoname)
             ]),
-            "--button1", prevbutton,
-            "--button1-action", "echo 'prev'> {}".format(self.fifoname),
-            "--button2", playbutton,
-            "--button2-action", "echo 'pause'> {}".format(self.fifoname),
-            "--button3", nextbutton,
-            "--button3-action", "echo 'next'> {}".format(self.fifoname),
+            "--media-previous", "echo 'prev'> {}".format(self.fifoname),
+            "--media-play", "echo 'pause'> {}".format(self.fifoname),
+            "--media-pause", "echo 'pause'> {}".format(self.fifoname),
+            "--media-next", "echo 'next'> {}".format(self.fifoname),
             "--on-delete", "echo 'exit'>{}".format(self.fifoname),
         ]
         subprocess.call(command)
