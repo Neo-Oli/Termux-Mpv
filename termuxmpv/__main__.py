@@ -50,16 +50,17 @@ class Termuxmpv:
     def initFifo(self):
         self.notificationId = "termuxMpv.{}".format(time.time())
         self.fifoname = "/data/data/com.termux/files/usr/tmp/{}".format(
-            self.notificationId)
+            self.notificationId
+        )
         os.mkfifo(self.fifoname)
         self.fifo = os.open(self.fifoname, os.O_RDONLY | os.O_NONBLOCK)
 
     def startProcess(self):
-        prefix = '/data/data/com.termux/files/usr'
+        prefix = "/data/data/com.termux/files/usr"
         program = "{}/bin/mpv".format(prefix)
         self.mpvproc = subprocess.Popen(
-            [program, '--input-ipc-server={}'.format(self.sockpath)] + self.args,
-            stdin=sys.stdin
+            [program, "--input-ipc-server={}".format(self.sockpath)] + self.args,
+            stdin=sys.stdin,
         )
 
     def createSocket(self):
@@ -116,11 +117,11 @@ class Termuxmpv:
                 if not b:
                     break
                 buf += b
-            buf = buf.decode("utf-8", 'replace')
+            buf = buf.decode("utf-8", "replace")
             newline = buf.find("\n")
             while newline >= 0:
-                message = buf[:newline + 1]
-                buf = buf[newline + 1:]
+                message = buf[: newline + 1]
+                buf = buf[newline + 1 :]
                 newline = buf.find("\n")
 
                 self.processMessage(message)
@@ -201,10 +202,9 @@ class Termuxmpv:
 
     def updatehook(self):
         command = "hook-update-mpv"
-        devnull = open(os.devnull, 'wb')
+        devnull = open(os.devnull, "wb")
         try:
-            subprocess.call(["sh", "-c", command],
-                            stdout=devnull, stderr=devnull)
+            subprocess.call(["sh", "-c", command], stdout=devnull, stderr=devnull)
         except Exception:
             pass
 
@@ -232,21 +232,33 @@ class Termuxmpv:
             title = filename
         command = [
             "termux-notification",
-            "--id", self.notificationId,
-            "--title", title,
-            "--type", "media",
-            "--content", "{}, {}".format(metadata["artist"],
-                                         metadata["album"]),
-            "--priority", "max",
-            "--action", ";".join([
-                "am start --user 0 -n com.termux/com.termux.app.TermuxActivity", # noqa line break is unreasonable
-                "echo 'updateNotification'> {}".format(self.fifoname)
-            ]),
-            "--media-previous", "echo 'prev'> {}".format(self.fifoname),
-            "--media-play", "echo 'pause'> {}".format(self.fifoname),
-            "--media-pause", "echo 'pause'> {}".format(self.fifoname),
-            "--media-next", "echo 'next'> {}".format(self.fifoname),
-            "--on-delete", "echo 'exit'>{}".format(self.fifoname),
+            "--id",
+            self.notificationId,
+            "--title",
+            title,
+            "--type",
+            "media",
+            "--content",
+            "{}, {}".format(metadata["artist"], metadata["album"]),
+            "--priority",
+            "max",
+            "--action",
+            ";".join(
+                [
+                    "am start --user 0 -n com.termux/com.termux.app.TermuxActivity",  # noqa line break is unreasonable
+                    "echo 'updateNotification'> {}".format(self.fifoname),
+                ]
+            ),
+            "--media-previous",
+            "echo 'prev'> {}".format(self.fifoname),
+            "--media-play",
+            "echo 'pause'> {}".format(self.fifoname),
+            "--media-pause",
+            "echo 'pause'> {}".format(self.fifoname),
+            "--media-next",
+            "echo 'next'> {}".format(self.fifoname),
+            "--on-delete",
+            "echo 'exit'>{}".format(self.fifoname),
         ]
         subprocess.call(command)
 
