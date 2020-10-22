@@ -262,6 +262,16 @@ class Termuxmpv:
             "--on-delete",
             "echo 'exit'>{}".format(self.fifoname),
         ]
+        if self.pause:
+            command += [
+                "--icon",
+                "pause",
+            ]
+        else:
+            command += [
+                "--icon",
+                "play_arrow",
+            ]
         subprocess.call(command)
 
 
