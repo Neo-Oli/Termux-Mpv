@@ -236,6 +236,7 @@ class Termuxmpv:
             self.notificationId,
             "--group",
             "termux-mpv",
+            "--alert-once",
             "--title",
             title,
             "--type",
