@@ -223,7 +223,6 @@ class Termuxmpv:
             pass
 
     def updateNotification(self):
-        self.updatehook()
         metadata = {}
         for attr in ["album", "artist", "title", "icy-title"]:
             try:
@@ -289,6 +288,7 @@ class Termuxmpv:
             ]
         if self.lastCommand != command:
             self.lastCommand = command
+            self.updatehook()
             subprocess.call(command)
 
 
