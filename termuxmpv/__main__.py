@@ -17,6 +17,7 @@ class Termuxmpv:
     def __init__(self, args):
         signal.signal(signal.SIGINT, self.signal_handler)
         self.args = args
+        self.lastCommand = ""
         self.pause = False
         self.q = []
         self.metadata = {}
@@ -24,6 +25,7 @@ class Termuxmpv:
         if not self.checkForSocket():
             self.createSocket()
         self.startProcess()
+        self.lastUpdate = time.time()
         self.getSocket()
         self.first = True
         self.processMessage()
@@ -104,8 +106,16 @@ class Termuxmpv:
                 pass
         self.updatehook()
 
+    def updateData(self):
+        self.lastUpdate = time.time()
+        self.sendMessage(["get_property", "metadata"], "metadata")
+        self.sendMessage(["get_property", "pause"], "pause")
+
     def monitor(self):
         while self.isRunning():
+            if time.time() > self.lastUpdate + 5:
+                self.lastUpdate = time.time()
+                self.updateData()
             # time.sleep(1)
             b = True
             buf = b""
@@ -152,6 +162,7 @@ class Termuxmpv:
             self.sendMessage(["keypress", "up"], "keypress")
         if command == "exit":
             self.sendMessage(["keypress", "q"], "keypress")
+        self.updateData()
         if command == "updateNotification":
             self.updateNotification()
 
@@ -195,6 +206,9 @@ class Termuxmpv:
                     self.updateNotification()
                 if self.q[0] == "filename":
                     self.filename = message["data"]
+                    self.updateNotification()
+                if self.q[0] == "pause":
+                    self.pause = message["data"]
                     self.updateNotification()
                 del self.q[0]
         elif "error" in message:
@@ -273,7 +287,9 @@ class Termuxmpv:
                 "--icon",
                 "play_arrow",
             ]
-        subprocess.call(command)
+        if self.lastCommand != command:
+            self.lastCommand = command
+            subprocess.call(command)
 
 
 def main(args=None):
