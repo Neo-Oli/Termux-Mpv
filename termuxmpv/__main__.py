@@ -19,17 +19,13 @@ class Termuxmpv:
         self.args = args
         self.lastCommand = ""
         self.pause = False
-        self.q = []
         self.metadata = {}
         self.initFifo()
         if not self.checkForSocket():
             self.createSocket()
         self.startProcess()
-        self.lastUpdate = time.time()
         self.getSocket()
-        self.first = True
-        self.processMessage()
-        self.first = False
+        self.setupPropertyChanges()
         self.updateNotification()
         self.monitor()
 
@@ -106,16 +102,8 @@ class Termuxmpv:
                 pass
         self.updatehook()
 
-    def updateData(self):
-        self.lastUpdate = time.time()
-        self.sendMessage(["get_property", "metadata"], "metadata")
-        self.sendMessage(["get_property", "pause"], "pause")
-
     def monitor(self):
         while self.isRunning():
-            if time.time() > self.lastUpdate + 5:
-                self.lastUpdate = time.time()
-                self.updateData()
             # time.sleep(1)
             b = True
             buf = b""
@@ -144,30 +132,34 @@ class Termuxmpv:
             if command:
                 self.sendCommand(command)
 
+    def setupPropertyChanges(self):
+        i = 1
+        for prop in ["pause", "metadata", "filename"]:
+            self.sendMessage(["observe_property", i, prop])
+            i += 1
+
     def sendCommand(self, command):
         command = command.strip()
         if command == "prev":
-            self.sendMessage(["keypress", "<"], "keypress")
+            self.sendMessage(["keypress", "<"])
         if command == "next":
-            self.sendMessage(["keypress", ">"], "keypress")
+            self.sendMessage(["keypress", ">"])
         if command == "pause":
-            self.sendMessage(["keypress", "p"], "keypress")
+            self.sendMessage(["keypress", "p"])
         if command == "seek-back":
-            self.sendMessage(["keypress", "left"], "keypress")
+            self.sendMessage(["keypress", "left"])
         if command == "seek-back-far":
-            self.sendMessage(["keypress", "down"], "keypress")
+            self.sendMessage(["keypress", "down"])
         if command == "seek-forward":
-            self.sendMessage(["keypress", "right"], "keypress")
+            self.sendMessage(["keypress", "right"])
         if command == "seek-forward-far":
-            self.sendMessage(["keypress", "up"], "keypress")
+            self.sendMessage(["keypress", "up"])
         if command == "exit":
-            self.sendMessage(["keypress", "q"], "keypress")
-        self.updateData()
+            self.sendMessage(["keypress", "q"])
         if command == "updateNotification":
             self.updateNotification()
 
-    def sendMessage(self, message, msgprocessor):
-        self.q.append(msgprocessor)
+    def sendMessage(self, message):
         data = {}
         data["command"] = message
         data = json.dumps(data)
@@ -188,31 +180,16 @@ class Termuxmpv:
             message = json.loads(message)
         except Exception:
             pass
-        if "event" in message:
-            if message["event"] == "metadata-update" or self.first:
-                self.sendMessage(["get_property", "metadata"], "metadata")
-            if message["event"] == "file-loaded" or self.first:
-                self.sendMessage(["get_property", "filename"], "filename")
-            if message["event"] == "pause":
-                self.pause = True
-                self.updateNotification()
-            if message["event"] == "unpause":
-                self.pause = False
-                self.updateNotification()
-        elif "data" in message:
-            if self.q[0]:
-                if self.q[0] == "metadata":
-                    self.metadata = message["data"]
-                    self.updateNotification()
-                if self.q[0] == "filename":
-                    self.filename = message["data"]
-                    self.updateNotification()
-                if self.q[0] == "pause":
+        print(message)
+        if "event" in message and "data" in message:
+            if message["event"] == "property-change":
+                if message["name"] == "pause":
                     self.pause = message["data"]
-                    self.updateNotification()
-                del self.q[0]
-        elif "error" in message:
-            del self.q[0]
+                if message["name"] == "metadata":
+                    self.metadata = message["data"]
+                if message["name"] == "filename":
+                    self.filename = message["data"]
+                self.updateNotification()
 
     def updatehook(self):
         command = "hook-update-mpv"
