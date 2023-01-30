@@ -180,7 +180,6 @@ class Termuxmpv:
             message = json.loads(message)
         except Exception:
             pass
-        print(message)
         if "event" in message and "data" in message:
             if message["event"] == "property-change":
                 if message["name"] == "pause":
